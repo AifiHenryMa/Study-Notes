@@ -1,0 +1,11 @@
+2017/10/17:
+1.Linux反选删除文件,最简单的方法是:
+# shopt -s extglob      （打开extglob模式）
+# rm -fr !(file1)
+
+如果是多个要排除的
+# rm -rf !(file1|file2) 
+
+2.dc综合命令：
+dc_shell-t -f rundc_smic.tcl | tee rundc_smic.log
+# -f 是指定脚本文件

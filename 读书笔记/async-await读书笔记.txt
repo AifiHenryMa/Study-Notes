@@ -1,0 +1,34 @@
+await操作符后面一般会跟着一个promise，如果后面跟的不是promise，会隐式地调用
+一个Promise.resolve()将它转化成promise
+
+串行:  
+const feweekly = await getZhihuColumn('feweekly');
+const toolingtips = await getZhihuColumn('toolingtips');
+
+并行:
+const feweeklyPromise = getZhihuColumn('feweekly');
+const toolingtipsPromise = getZhihuColumn('toolingtips');
+const feweekly = await feweeklyPromise;
+const toolingtips = await toolingtipsPromise;
+
+
+
+使用promis.all()让多个await操作并行
+const showColumnInfo = async () => {
+  const [feweekly, toolingtips] = await Promise.all([
+    getZhihuColumn('feweekly'),
+    getZhihuColumn('toolingtips'),
+  ]);
+
+
+
+结合await和任意兼容.then()的代码
+用bluebird 转成 promise
+
+
+
+在for循环中正确使用await
+用map一次性触发所有的请求
+
+
+

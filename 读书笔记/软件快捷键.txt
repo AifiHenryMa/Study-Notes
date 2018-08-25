@@ -1,0 +1,29 @@
+Visual Studio Code：
+    vscode 跳转到函数之后怎么跳转回之前的位置：
+	alt + <-     跳回前一个文件
+	alt + ->     跳回后一个文件
+
+    vscode 编译运行：
+  	F5
+
+    恢复撤销：ctrl + Y
+
+    取消注释： 先CTRL+K，然后CTRL+U
+
+
+Netbeans：
+    Ctrl + / 注释	
+    Ctrl+Shift+C 取消注释
+    Alt+Shift+F 代码格式化
+    Ctrl+Space或Ctrl+\ 代码提示
+    Ctrl+Shift+上下方向键(该操作并非复制到粘贴板) 复制本行到下一行
+    Ctrl+X  删除一行
+
+Visual Stdio：
+    注释代码快捷键：Ctrl + K + C；
+    取消注释快捷键： Ctrl + K + U；
+
+    格式化代码快捷键：Ctrl + A + K + F；
+    取消格式化代码快捷键：Ctrl  + K + F；
+    
+    代码智能提示：Ctrl+J

@@ -1,0 +1,136 @@
+spines_daemon
+NAME 
+     spines - The Spines software daemon
+
+
+SYNOPSIS 
+
+     spines [-p spines_port] [-l logical_id] [-I local_address] [[-a destination]*]
+            [[-d discovery_address]*] [-w route_weight] [-sf] [-m] [-x time_to_live] 
+            [-U] [-W] [-k level] [-lf log_file] [-ud unix_domain_path] [-c config_file]
+
+
+DESCRIPTION 
+
+     spines starts a virtual router daemon. In the current
+     distribution, Spines networks are built incrementally. When
+     staring a new node/daemon, the user needs to specify in the
+     command line to which other existing nodes (if any), this daemon
+     will connect.
+
+
+OPTIONS 
+
+    -p spines_port 
+          The port on which the daemon will send and receive messages
+          (default 8100). All the daemons in a Spines network need to
+          run on the same port.
+
+    -l logical_id
+          The logical ID of this node
+
+    -I local_address
+          Local IP address that will be used by Spines (default the
+          address of the first defined network interface).
+
+    -a destination   
+          The address of an existing node participating in a Spines
+          network. The current daemon will create a virtual link
+          together with the daemon running at this address.  A Spines
+          daemon accepts virtual link requests from other daemons, up
+          to 255 links per node.
+
+    -d discovery_address
+          The IP-multicast address used to auto-discover other Spines
+          daemons. A discovery packet is multicasted periodically to
+          allow Spines routers that can hear each other to interconnect.
+          A node can specify up to 10 different discovery addresses. 
+
+    -w Route_Weight
+          Sets the route metric for shortest path computation.
+          Route_Weight can be [distance, latency, loss, explat], with
+          default, distance.
+
+          distance: every link has an equal cost of 1. The routing
+          minimizes the number of hops on each path.
+
+          latency: the cost of a link is equal to its latency. The
+          routing minimizes the total latency of each path.
+
+          loss: the cost of each link is defined as -log(1-p), where p
+          is the loss rate of that link. The routing chooses paths
+          that minimize end-to-end loss rate.
+
+          explat: The cost of each link equals the expected latency of
+          packets on that link, considering that lost packets will be
+          attempted to be recovered only once. The routing maximizes
+          end-to-end delivery ratio within a time constraint for
+          packet delay.
+
+
+    -sf   
+          Stream based fairness for reliable links. Makes a reliable
+          link between two neighbors behave as multiple streams
+          (individual streams that actually go through the link) with
+          regard to the TCP congestion control
+
+    -m    
+          Accept monitor commands for setting link characteristics
+          in order to create virtual topologies (see setlink program).
+
+    -x time_to_live
+          Sets the time (in seconds) until the daemon will exit
+          gracefully. If no such time is given, the daemon will run
+          indefinitely.
+
+    -U    
+          Unicast only. Instructs the daemon to use Dijkstra for route
+          computation instead of Floyd Warshall (all pairs shortest
+          path). This allows faster route computation and scalability
+          to more router nodes (up to 1000), but Spines will not be
+          able to route multicast messages.
+
+    -W 
+          Wireless mode.  Will change some default timers to better
+          accommodate a wireless environment.
+
+    -k level
+          Sets the kernel routing level that should be used when
+          manipulating kernel routing tables.  By default, Spines routes
+          packets through a user-level router. This option allows Spines
+          to control kernel routing tables according to the following
+          levels:
+
+          0 -- Set kernel routes to every node in the Spines network.
+               This allows Spines to manage kernel routes through the
+               overlay topology. 
+          1 -- Set unicast kernel routes based on a anycast group
+               membership.  By default, 247.0.0.0/8 will map to routes on
+               a 10.0.0.0/8 network.  One route entry (on the main route
+               table) with one next-hop is entered for each destination.
+          2 -- Set unicast kernel routes based on a multicast group
+               membership. By default, 227.0.0.0/8 will map to routes
+               on a 10.0.0.0/8 network.  For each destination, multiple
+               routes (in different routing tables), each with possibly
+               multiple next-hop, are entered.
+
+    -lf log_file_name
+          Name of the log file to use. If no log file name is given, Spines
+          does not log to file.
+
+    -ud unix_domain_path
+          Name of the file path where Spines will bind a unix domain socket
+          for accepting client connections over IPC. The default path is
+          /tmp/spines[port#], which is /tmp/spines8100 on the default port.
+          By specifying -ud, Spines will instead bind to the exact path that
+          is listed (the port will NOT be appended in this custom-defined case).
+          Additionally, the user can specify a custom unix_domain_path using
+          the configuration file.
+
+    -c configuration_file_name
+         Name of the configuration file to read from. The default configuration
+         file name is spines.conf. If no configuration file is found, Spines will
+         continue with the default parameter values for the link protocols and
+         dissemination protocols. Note that without a configuration file, the
+         Intrusion Tolerant Link protocol and both the Priority Messaging and
+         Reliable Messaging dissemination protocols will be turned off. 

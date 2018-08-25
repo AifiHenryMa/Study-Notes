@@ -1,0 +1,8 @@
+首先安装jdk
+    sudo mkdir -p /usr/lib/jvm
+    tar -zxvf Downloads/jdk-8u162-linux-x64.tar.gz -C /usr/lib/jvm
+    update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8.0_162/bin/java 300
+    update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk1.8.0_162/bin/javac 300
+
+    update-alternatives --config java
+    update-alternatives --config javac

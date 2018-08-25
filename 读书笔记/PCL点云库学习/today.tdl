@@ -1,0 +1,10 @@
+ ctrl + I 创建新任务
+ ctrl + D 任务完成
+ ctrl + C 任务未完成
+ D + Tab 时间
+ T + Tab 今天
+ -- + tab 分割线
+ ✔ PCL @done (18-04-09 16:31)
+ ✘ cuda @cancelled (18-04-09 16:31)
+ ✘ C++ @cancelled (18-04-09 16:31)
+ @today

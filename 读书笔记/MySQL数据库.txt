@@ -1,0 +1,604 @@
+关系型数据库：
+ 大型：Oracle、DB2 等；
+ 中型：SQL Server、MySQL 等；
+ 小型：Access 等。
+安全，其将数据保存到磁盘之中，基本不可能出现丢失数据的情况；
+比较浪费空间，因为其用二维表的形式存储数据。
+
+非关系型数据库：
+ Memcached、MongoDB 和 Redis 等。
+存储数据的效率比较高；
+不是特别安全，突然断电时会导致数据丢失。
+
+关系型数据库，是一种建立在关系模型（数学模型）上的数据库。
+至于关系模型，则是一种所谓建立在关系上的模型，其包含三个方面，分别为：
+
+1.数据结构：数据存储的形式，二维表（行和列）；
+2.操作指令集合：所有的 SQL 语句；
+3.完整性约束：表内数据约束（字段与字段）和表与表之间的约束（外键）。
+
+SQL 主要分为三种：
+
+DDL：Data Definition Language，数据定义语言，用来维护存储数据的结构（数据库、表），代表指令为create、drop和alter等。
+DML：Data Manipulation Language，数据操作语言，用来对数据进行操作（表中的内容）代表指令为insert、delete和update等，
+不过在 DML 内部又单独进行了一个分类，即 DQL（Data Query Language），数据查询语言，代表指令为select.
+DCL：Data Control Language，数据控制语言，主要是负责（用户）权限管理，代表指令为grant和revoke等。
+
+客户端连接认证，即连接服务器，认证身份mysql.exe -hPup
+-h，主机地址，本地为localhost，远程为IP地址
+-P，端口号，用来找软件
+-u，用户名
+-p，密码
+
+发送 SQL 指令；
+服务器接受 SQL 指令，然后处理 SQL 指令并返回操作结果；
+客户端接受结果并显示结果；
+由于服务器并发限制，需要断开连接（三种指令，分别为：exit、quit和\q），释放资源。
+
+一般来说，将 MySQL 数据库服务器的内部对象分为四层，分别为：数据管理系统（DBMS）–> 数据库（DB）–> 表（Table）–> 字段（Filed）.
+
+SQL 基本操作
+CURD，即增删改查。
+根据操作对象的不同，咱们可以将 SQL 的基本操作分为三类，分别为：库操作、表（字段）操作和数据操作。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+一、库操作：
+
+1、新增数据库
+create database + 数据库名称 + [库选项];
+
+2、查询数据库
+查看全部 –> 基本语法：show databases;
+查看部分（模糊查询）–> 基本语法：show databases like 'pattern';
+其中，pattern是匹配模式，有两种，分别为：
+%：表示匹配多个字符；
+_：表示匹配单个字符。
+此外，在匹配含有下划线_的数据库名称的时候，需要在下划线前面加上反斜线\_进行转义操作。
+
+3、更新数据库
+在这里，需要注意：数据库的名字不可以修改。
+数据库的修改仅限库选项，即字符集和校对集（校对集依赖字符集）。
+基本语法：alter database + 数据库名称 + [库选项];
+charset/character set[=] 字符集;
+collate[=] 校对集;
+
+4、删除数据库
+基本语法：drop database + 数据库名称;
+
+温馨提示：用符号[]括起来的内容，表示可选项；符号+，则表示连接的意思。
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+二、表操作：
+1、新增表
+基本语法：
+create table [if not exists] + 表名(
+    字段名称 数据类型,
+    ……
+    字段名称 数据类型   /* 最后后一行，不需要加逗号 */
+)[表选项];
+
+表选项则是用来控制表的表现形式的，共有三种，分别为：
+字符集设定：charset/ character set+ 具体字符集，用来表示数据存储的编码格式，常用的字符集包括GBK和UTF8等。
+校对集设定：collate+ 具体校对集，表示数据比较的规则，其依赖字符集。
+存储引擎：engine+具体存储引擎，默认为InnoDB，常用的还有MyISAM.
+
+由于任何表都归属于某个数据库，因此在创建表的时候，都必须先指定具体的数据库。在这里，指定数据库的方式有两种，分别为：
+第 1 种：显式的指定表所属的数据库，示例
+create table if not exists test.student(
+    name varchar(10),
+    age int,            /* 整型不需要指定具体的长度 */
+    grade varchar(10)   /* 最后后一行，不需要加逗号 */
+)charset utf8;
+
+第 2 种：隐式的指定表所属的数据库，示例
+use test;               /* use + 数据库名称，表示切换到指定的数据库，这句命令其实不加分号也可以，但不建议这么做 */
+create table if not exists student(
+    name varchar(10),
+    age int,            /* 整型不需要指定具体的长度 */
+    grade varchar(10)   /* 最后后一行，不需要加逗号 */
+)charset utf8;
+
+2、查询表
+查看全部 –> 基本语法：show tables;
+查看部分（模糊查询）–> 基本语法：show tables like 'pattern';
+其中，pattern是匹配模式，有两种，分别为：
+%：表示匹配多个字符；
+_：表示匹配单个字符。
+查看表的创建语句 –> 基本语法：show create table + 表名;
+在这里，咱们也可以用\g和\G代替上述语句中的;分号，其中\g等价于分号，\G则在等价于分号的同时，将查的表结构旋转90度，变成纵向结构。
+查看表中的字段信息 –> 基本语法：desc/describe/show columns from + 表名;
+
+3、更新表
+在这里，需要注意：表的修改，分为修改表本身和修改表中的字段。
+
+第 1 类：修改表本身
+    修改表名，基本语法：rename table 旧表名 to 新表名;
+    修改表选项，基本语法：alter table + 表名 + 表选项[=] + 值;
+
+第 2 类：修改表中的字段，新增、修改、重命名和删除
+
+    新增字段，基本语法：alter table + 表名 + add + [column] + 字段名 + 数据类型 + [列属性][位置]; 
+     其中，位置表示此字段存储的位置，分为first（第一个位置）和after + 字段名（指定的字段后，默认为最后一个位置）.
+     示例：alter table student add column id int first;
+
+    修改字段，基本语法：alter table + 表名 + modify + 字段名 + 数据类型 + [列属性][位置]; 
+     其中，位置表示此字段存储的位置，分为first（第一个位置）和after + 字段名（指定的字段后，默认为最后一个位置）.
+     示例：alter table student modify name char(10) after id;
+
+    重命名字段，基本语法：alter table + 表名 + change + 旧字段名 + 新字段名 + 数据类型 + [列属性][位置]; 
+     其中，位置表示此字段存储的位置，分为first（第一个位置）和after + 字段名（指定的字段后，默认为最后一个位置）.
+     示例：alter table student change grade class varchar(10);
+
+    删除字段，基本语法：alter table + 表名 + drop+ 字段名; 
+     示例：alter table student drop age;
+     注意：如果表中已经存在数据，那么删除该字段会清空该字段的所有数据，而且不可逆，慎用。
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+三、数据操作：
+1、新增数据
+对于数据的新增操作，有两种方法。
+    第 1 种：给全表字段插入数据，不需要指定字段列表，但要求数据的值出现的顺序必须与表中的字段出现的顺序一致，并且凡是非数值数据，都需要用引号（建议使用单引号）括起来。 
+    基本语法：insert into + 表名 + values(值列表)[,(值列表)];
+    示例：insert into test values('charies',18,'3.1');
+
+    第 2 种：给部分字段插入数据，需要选定字段列表，字段列表中字段出现的顺序与表中字段的顺序无关，但值列表中字段值的顺序必须与字段列表中的顺序保持一致。 
+    基本语法：insert into + 表名(字段列表) + values(值列表)[,(值列表)];
+    示例：insert into test(age,name) values(18,'guo');
+
+2、查询数据
+   查看全部 –> 基本语法：select * from + 表名 + [where 条件];
+   示例：select * from test;
+
+   查看部分 –> 基本语法：select + 字段名称[,字段名称] + from + 表名 + [where 条件];
+   示例：select name,age,grade from test where age = '18';
+
+3、更新数据
+   基本语法：update + 表名 + set + 字段 = 值 + [where 条件];
+   示例：update test set age = 20 where name = 'guo';
+   在这里，建议尽量加上where条件，否则的话，操作的就是全表数据。
+   此外，判断更新操作是否成功，并不是看 SQL 语句是否执行成功，而是看是否有记录受到影响，即affected的数量大于1时，才是真正的更新成功。
+
+4、删除数据
+   基本语法：delete from + 表名 + [where 条件];
+   示例：delete from test where grade = '3.1';
+   当然，我们也可以用drop来实现删除操作，不过与delete相比，drop的威力更强，其在执行删除操作的时候，不仅会删除数据，还会删除定义并释放存储空间；
+   而delete在执行删除操作的时候，仅会删除数据，并不会删除定义和释放存储空间。
+
+
+第七篇：中文数据问题
+
+-- 查看服务器识别的全部字符集
+show character set;
+
+-- 查看服务器默认的对外处理的字符集
+show variables like 'character_set%'; 
+
+-- 修改服务器默认接收的字符集为 GBK（不区分大小写）
+set character_set_client = gbk;
+
+-- 修改服务器给客户端的数据字符集为 GBK（不区分大小写）
+set character_set_results = gbk;
+
+此外，咱们之前使用的 SQL 语句：
+
+-- 修改的只是会话级别，即当前客户端当次连接有效，关闭后失效
+set 变量 = 值;
+这样的话，每当咱们重启客户端的时候，都要依次重新进行设置，比较麻烦，因此咱们可以使用快捷的设置方式，即：
+
+set names 字符集;
+例如，
+
+/**
+* 恒等于 set character_set_client = gbk;
+* 恒等于 set character_set_results = gbk;
+* 恒等于 set character_set_connection = gbk;
+*/
+set names gbk;
+表示上述一条语句，将同时改变三个变量的值。其中，connection为连接层，是字符集转换的中间者，如果其和client和results的字符集一致，则效率更高，不一致也没有关系。
+
+
+第八篇：校对集问题
+校对集，其实就是数据的比较方式。
+校对集，共有三种，分别为：
+_bin：binary，二进制比较，区分大小写；
+_cs：case sensitive，大小写敏感，区分大小写；
+_ci：case insensitive，大小写不敏感，不区分大小写。
+
+根据表中的某个字段进行排序，其基本语法为：
+order by + 字段名 + [asc/desc];
+
+其中，asc表示升序，desc表示降序，默认为升序。执行如下 SQL 语句：
+
+-- 排序比较
+select * from my_collate_bin order by name;
+select * from my_collate_ci order by name;
+校对集必须在没有数据之前声明好，如果有了数据之后，再进行校对集的修改，则修改无效。
+
+**********************************************************************************************************************************
+node.js安装mysql支持包：npm install -g mysql %-g 表示全局
+连接数据库：
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+    host : 'localhost',
+    user : 'root',
+    password : 'root',
+    database : 'aifi'
+});
+connection.connect();
+数据库连接参数说明：
+    参数	                                                      描述
+---------------   -------------------------------------------------------------------------------------------------------------------
+  host	                                                    主机地址 （默认：localhost）
+  user	                                                    用户名
+　password	                                            密码
+　port	                                                    端口号 （默认：3306）
+　database	                                            数据库名
+　charset	                                            连接字符集（默认：'UTF8_GENERAL_CI'，注意字符集的字母都要大写）
+　localAddress	                                            此IP用于TCP连接（可选）
+　socketPath	                                            连接到unix域路径，当使用 host 和 port 时会被忽略
+　timezone	                                            时区（默认：'local'）
+　connectTimeout	                                    连接超时（默认：不限制；单位：毫秒）
+　stringifyObjects	                                    是否序列化对象
+　typeCast	                                            是否将列值转化为本地JavaScript类型值 （默认：true）
+　queryFormat	                                            自定义query语句格式化方法
+　supportBigNumbers	                                    数据库支持bigint或decimal类型列时，需要设此option为true （默认：false）
+　bigNumberStrings	                                    supportBigNumbers和bigNumberStrings启用 强制bigint或decimal列以JavaScript字符串类型返回（默认：false）
+　dateStrings	                                            强制timestamp,datetime,data类型以字符串类型返回，而不是JavaScript Date类型（默认：false）
+　debug	                                                    开启调试（默认：false）
+　multipleStatements	                                    是否许一个query中有多个MySQL语句 （默认：false）
+　flags	                                                    用于修改连接标志
+　ssl	                                                    使用ssl参数（与crypto.createCredenitals参数格式一至）或一个包含ssl配置文件名称的字符串，目前只捆绑Amazon RDS的配置文件
+
+
+**********************************************************************************************************************************
+数据库操作( CURD )
+一、查询数据
+var mysql  = require('mysql');  
+ 
+var connection = mysql.createConnection({     
+  host     : 'localhost',       
+  user     : 'root',              
+  password : '123456',       
+  port: '3306',                   
+  database: 'test', 
+}); 
+ 
+connection.connect();
+ 
+var  sql = 'SELECT * FROM user';
+//查
+connection.query(sql,function (err, result) {
+        if(err){
+          console.log('[SELECT ERROR] - ',err.message);
+          return;
+        }
+ 
+       console.log('--------------------------SELECT----------------------------');
+       console.log(result);
+       console.log('------------------------------------------------------------\n\n');  
+});
+ 
+connection.end();
+
+
+二、插入数据
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+    host : 'localhost',
+    user : 'root',
+    password : 'root',
+    database : 'aifi'
+});
+
+connection.connect();
+var addsql = 'insert into user(user_id,user_name,user_email,user_phone,password,vaild_from,vaild_to,status) values(?,?,?,?,?,?,?,?)';
+var addsqlParams = [1,'lin yifang','5@aifi.net','12535467565','qw1234443','2019-01-01 00:00:00','2019-01-01 00:00:00',1];
+connection.query(addsql,addsqlParams,function (err,result){
+    if(err){
+        console.log('[INSERT ERROR] - ',err.message);
+        return;
+    }
+    else{
+        console.log('----------------------------Insert------------------------------');
+        console.log('Insert Info: ',result);
+        console.log('----------------------------------------------------------------\n\n');
+    }
+});
+connection.end();
+return;
+
+
+三、更新数据
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+    host : 'localhost',
+    user : 'root',
+    password : 'root',
+    database : 'aifi'
+});
+
+ 
+connection.connect();
+
+var modSql = 'UPDATE user SET user_id = ?, user_name =?  where user_email = ?';
+var modSqlParams = [11,'MHT', '5@aifi.net'];
+//改
+connection.query(modSql,modSqlParams,function (err, result) {
+   if(err){
+         console.log('[UPDATE ERROR] - ',err.message);
+         return;
+   } 
+   else{
+    console.log('--------------------------UPDATE----------------------------');
+    console.log('UPDATE affectedRows',result.affectedRows);
+    console.log('-----------------------------------------------------------------\n\n');
+   }       
+});
+ 
+connection.end();
+
+
+四、删除数据
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+    host:     'localhost',
+    user :     'root',
+    password:  'root',
+    database:  'aifi',
+    port:      '3306'
+});
+
+connection.connect();
+
+var DelSqlParam = ['user','user_id','3'];
+var DelSql = 'delete from ' + DelSqlParam[0] + ' where ' + DelSqlParam[1] + ' = ' + DelSqlParam[2];%组合成一条sql删除语句
+
+connection.query(DelSql,function(err,result){
+    if (err){
+        console.log('delete err: ' + err.message);
+        return;
+    }
+    else {
+        console.log('--------------------------DELETE----------------------------');
+        console.log('DELETE affectedRows',result.affectedRows);
+        console.log('-----------------------------------------------------------------\n\n'); 
+    }
+})
+
+connection.end();
+
+********************************************************************************************************
+********************************************************************************************************
+*                                  EXAMPLE：创建aifi/user表的代码                                      *
+********************************************************************************************************
+********************************************************************************************************
+
+
+C:\Windows\system32>mysql -uroot -p520462 -Dtest<E:\test.sql
+//mysql -u账号 -p密码 -D数据库名 < sql文件绝对路径
+-------------------------------------------------------------------------
+在DOS中运行的命令：
+C:\Users\AIFI>mysql -uroot -proot<C:\Users\AIFI\Desktop\test.sql
+/* 创建aifi数据库 */
+create database aifi;
+
+/* 切换到aifi数据库 */
+use aifi;
+
+/* 创建user表 */
+create table if not exists user(
+    user_id int primary key auto_increment,
+    user_name varchar(255),
+    user_email varchar(255),
+    user_phone varchar(255),
+    password varchar(255),
+    valid_from datetime,
+    valid_to datetime,
+    status int);
+
+/* 添加第一条数据 */
+insert into 
+user(
+	user_id,
+	user_name,
+	user_email,
+	user_phone,
+	password,
+	valid_from,
+	valid_to,
+        status
+)
+value(
+	1,
+	'milton chang',
+	'1@aifi.net',
+	'12345678910',
+	'qw1234',
+	'2018-01-01 00:00:00',
+	'2050-01-01 00:00:00',
+        0
+); 
+
+/* 添加第二条数据 */
+insert into 
+user(
+	user_name,
+	user_email,
+	user_phone,
+	password,
+	valid_from,
+	valid_to,
+        status
+)
+value(
+	'Henry Ma',
+	'2@aifi.net',
+	'12345678911',
+	'qw1234',
+	'2018-01-01 00:00:00',
+	'2050-01-01 00:00:00',
+        0
+); 
+
+/* 添加第三条数据 */
+insert into 
+user(
+	user_name,
+	user_email,
+	user_phone,
+	password,
+	valid_from,
+	valid_to,
+        status
+)
+value(
+	'Kai Luo',
+	'3@aifi.net',
+	'12345678912',
+	'qw1234',
+	'2018-01-01 00:00:00',
+	'2050-01-01 00:00:00',
+        0
+); 
+
+/* 添加第四条数据 */
+insert into 
+user(
+	user_name,
+	user_email,
+	user_phone,
+	password,
+	valid_from,
+	valid_to,
+        status
+)
+value(
+	'Zhan Lin',
+	'4@aifi.net',
+	'12345678913',
+	'qw1234',
+	'2018-01-01 00:00:00',
+	'2050-01-01 00:00:00',
+        0
+); 
+
+
+
+
+
+
+
+================================================================================
+node.js封装mysql
+// a) database.config.js 代码
+// 配置连接数据库的参数
+module.exports = {
+    host     : 'localhost',
+    port     : 3306,
+    database : 'aifi',
+    user     : 'root',
+    password : 'root'
+};
+
+//b)db.js代码：
+//定义数据库query函数，向外暴露
+
+var mysql = require('mysql');
+
+var databaseconfig = require('./database.config');
+
+// 向外暴露方法
+module.exports = {
+  query : function(sql,params,callback){
+    // 每次使用的时候需要创建链接，数据操作完成之后要关闭连接
+    var connection = mysql.createConnection(databaseconfig);
+    connection.connect(function(err){
+      if(err){
+        console.log('数据库连接失败！');
+        throw err;
+      }
+      //开始数据操作
+      connection.query(sql,params,function(err,results,fields){
+        if(err){
+          console.log('数据库操作失败！');
+          throw err;
+        }
+        //将查询出来的数据返回给回调函数，这个时候就没有必要使用错误前置的思想了，
+        //因为我们在这个文件中已经对错误进行了处理，如果数据检索报错，直接就会阻塞到这个文件中
+        callback && callback(results,fields);
+        //results作为数据操作后的结果，fields作为数据库连接的一些字段，大家可以打印到控制台观察一下
+        //停止链接数据库，必须再查询语句后，要不然一调用这个方法，就直接停止链接，数据操作就会失败
+        connection.end(function(err){
+          if(err){
+            console.log('关闭数据库连接失败！');
+            throw err;
+          }
+        });
+      });
+    });
+
+  }
+};
+
+
+//c)dbtest.js代码
+var db = require('./db');  //引入刚才自定义的模块
+        //对数据库操作(从show_cascade 表中检索所有字段，并打印出结果)
+db.query('select * from user', [],function(results,fields){
+       console.log(results);
+       console.log(fields);
+ });
+
+
+
+
+=====================================================================================================
+C++利用MySQL API连接和操作数据库实例
+1、C++连接和操作MySQL的方式
+Windows平台：ADO、ODBC或者MySQL API进行连接和操作。
+--ADO (ActiveX Data Objects，ActiveX数据对象）是Microsoft提出的一个用于存取数据源的COM组件。
+--ODBC(Open DataBase Connection)开放式系统互连，是一种数据库访问协议，提供了访问数据库的API接口。
+--MySQL API
+
+在Linux平台如何连接和使用MSQL数据库呢？我们同样可以使用ADO、unixODBC或者MySQL API。
+下文将详细讲解MySQL创建数据库和C++利用MSQL API连接和操作数据库。
+
+2、MySQL数据库的设计和建立
+MySQL支持多种类型，大致可以分为三类：数值、日期/时间和字符串(字符)类型。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

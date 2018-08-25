@@ -1,0 +1,86 @@
+1.Docker溯源
+    Docker的前身是名为dotCloud的小公司，主要提供的是基于 PaaS（Platform as a Service，平台及服务）平台为开发者或开发商提供技术服务，
+并提供的开发工具和技术框架。因为其为初创的公司，又生于IT行业，dotCloud受到了IBM，亚马逊，google等公司的挤压，发展举步维艰。于是，在
+2013年dotCloud 的创始人，年仅28岁的Solomon Hykes做了一个艰难的决定：将dotCloud的核心引擎开源！然而一旦这个基于 LXC（Linux Container）
+技术的核心管理引擎开源，dotCloud公司就相当于走上了一条"不归路"。可正是这个孤注一掷的举动，却带来了全球技术人员的热潮，众程序员惊呼：
+太方便了，太方便了。也正是这个决定，让所有的IT巨头也为之一颤。一个新的公司也随之出世，它就是：Docker。可以说，Docker是一夜成名的！！
+
+
+2.Docker认识
+    2.1镜像，容器，仓库
+镜像（image）：Docker 镜像就是一个只读的模板，镜像可以用来创建 Docker 容器。Docker 提供了一个很简单的机制来创建镜像或者更新现有的镜像，
+用户甚至可以直接从其他人那里下载一个已经做好的镜像来直接使用。镜像是一种文件结构。Dockerfile中的每条命令都会在文件系统中创建一个新的层次结构，
+文件系统在这些层次上构建起来，镜像就构建于这些联合的文件系统之上。Docker官方网站专门有一个页面来存储所有可用的镜像，网址是：index.docker.io。
+
+容器（ Container）：容器是从镜像创建的运行实例。它可以被启动、开始、停止、删除。每个容器都是相互隔离的、保证安全的平台。可以把容器看做是一个
+简易版的 Linux 环境，Docker 利用容器来运行应用。
+
+仓库：仓库是集中存放镜像文件的场所，仓库注册服务器（Registry）上往往存放着多个仓库，每个仓库中又包含了多个镜像，每个镜像有不同的标签（tag）。
+目前，最大的公开仓库是 Docker Hub，存放了数量庞大的镜像供用户下载。
+
+    2.2Docker定义
+Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上。Docker是一个重
+新定义了程序开发测试、交付和部署过程的开放平台，Docker则可以称为构建一次，到处运行，这就是Docker提出的"Build once，Run anywhere"
+Docker仓库用来保存我们的images，当我们创建了自己的image之后我们就可以使用push命令将它上传到公有或者私有仓库，这样下次要在另外一台机器上使用
+这个image时候，只需要从仓库上pull下来就可以了。注意：Docker不是容器，而是管理容器的引擎！
+Docker中文手册上解释说：Docker是一个开源的引擎，可以轻松的为任何应用创建一个轻量级的、可移植的、自给自足的容器。开发者在笔记本上编译测试通过
+的容器可以批量地在生产环境中部署，包括VMs（虚拟机）、bare metal、OpenStack 集群和其他的基础应用平台。从这里我们可以看出，Docker并非是容器，而
+是管理容器的引擎。Docker是为应用打包、部署的平台，而非单纯的虚拟化技术。
+
+
+3.Docker安装
+
+
+4.Docker命令
+
+ docker-machine help [COMMAND]
+
+ version/help ----查看版本和帮助
+ 
+ create/help  ----创建/删除一个Docker machine
+
+ start/stop/restart/kill ----启停Docker machine
+
+ active/config/env/inspect/ip/ls/status/url ----获取信息
+
+ ssh ----远程登录Docker machine
+
+ scp ----本机与machine或者machine之间传输文件
+
+ 实例：
+ docker-machine ls
+ docker-machine create --driver virtualbox cloudcomb
+ docker-machine env cloudcomb
+    显示：
+    export DOCKER_TLS_VERIFY="1"   # 设置Docker客户端和Docker主机之间的通信是使用TLS
+    export DOCKER_HOST="tcp://192.168.99.101:2376" # 指明了远程Docker host IP地址和端口
+    export DOCKER_CERT_PATH="C:\Users\hitao_ma\.docker\machine\machines\cloudcomb"  # 认证过程中的证书和路径
+    export DOCKER_MACHINE_NAME="cloudcomb" # Docker machine的名字
+    # Run this command to configure your shell:
+    # eval $("D:\Docker Toolbox\docker-machine.exe" env cloudcomb)
+
+ eval $("D:\Docker Toolbox\docker-machine.exe" env cloudcomb)
+ docker run hub.c.163.com/library/busybox:latest echo hello world
+ docker-machine rm cloudcomb
+
+
+ 用Docker部署Nginx
+  1). docker-machine env
+  2). eval $("D:\Docker Toolbox\docker-machine.exe" env)
+  3). docker pull nginx
+  4). docker images
+  5). docker run -p 8080:80 --name nginx_web -it library/nginx /bin/bash #端口映射 并且进入了容器
+  6). whereis nginx
+  显示：nginx: /usr/sbin/nginx /usr/lib/nginx /etc/nginx /usr/share/nginx
+  7). nginx #启动nginx
+ 接下来就可以在主机上访问http://192.168.99.100:8080/了
+  8). 按ctrl+p 再按ctrl+q退出容器
+  9). docker ps -a
+  显示：
+      CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                  NAMES
+      8ff8cf808c4f        library/nginx       "/bin/bash"         8 minutes ago       Up 8 minutes        0.0.0.0:8080->80/tcp   nginx_web
+  10). docker stop 8ff #停止进程
+  11). docker rm 8ff
+
+ 通过Dockerfile运行nginx
+ 
