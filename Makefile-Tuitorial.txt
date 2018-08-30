@@ -1,0 +1,137 @@
+	 		====================
+ 			My Makefile tutorial
+	 		====================
+
+In order to write makefile, you should follow these rules:
+----------------------------------------------------------
+1. Write it using any editor
+2. Name it 'Makefile' (you can give it any other name, but then you must use special flag when run make)
+3. When define dependences, enter one TAB before compile/link command
+4. White spaces are ignored
+5. To know more about make options run >man make
+6. There are full links on the web that can help you to understand makefile.
+Here are some of them: 
+http://www.cs.umd.edu/class/spring2003/cmsc214/Tutorials/makefile.html
+http://users.actcom.co.il/~choo/lupg/tutorials/writing-makefiles/writing-makefiles.html#makefile_flags
+
+There you have a list of tools of makefile language:
+----------------------------------------------------
+
+dependencies:
+=============
+In order to run some copilation/linking, you have to define dependency.
+exe: file1.c		   # here you say that exe depends on (i.e. is created from) file1.c
+	gcc file.c -o exe  # here you run gcc compile and link command
+
+exe: file1.c file2.c headerfile.h # exe depends on three files (two source file and one header file)
+	gcc file.c file2.c -o exe # run gcc compile and link command
+-------------
+suffix rules:
+=============
+.SUFFIXES: .o .c  # store important suffixes in the .SUFFIXES macro
+.c.o:
+	gcc -c $< # rule for generating anyfile.o from anyfile.c
+
+Note that the same could be done using:
+%.o: %.c  
+	gcc -c $< # %.c means every file with suffix .c
+                              # 
+-------------
+macros:
+=============
+CC = gcc                       # here we define macro named CC, and its value is gcc
+CFLAGS = -g -Wall
+OBJS = main.o file1.o 
+PROG = main
+
+$(PROG): $(OBJS)
+        $(CC) $(LDFLAGS) $(OBJS) -o $(PROG) # here we use CC macro, by writing $(CC) 
+
+main.o: main.c file1.h
+        $(CC) $(CFLAGS) -c main.c
+
+file1.o: file1.c file1.h
+        $(CC) $(CFLAGS) -c file1.c
+
+clean:
+        $(RM) $(PROG) $(OBJS)
+-------------
+SOURCE = file1.c file2.c  # define a macro SOURCE with a list of source files
+OBJECTS = $(SOURCE:.c=.o) # define a macro OBJECTS, which includes all the files from
+                          # SOURCE macro, but with .o suffic, i.e. OBJECTS = file1.c file2.o
+-------------
+build-in macros:
+-------------
+CC - Contains the current C compiler. Defaults to cc
+CFLAGS - compiling flags
+LFLAGS - linking flags
+.SUFFIXES - store suffixes
+$@ - Full name of the current target (If the target is a library, then this expands to the library name.)
+$$@ - Name of the current target. (Can only be used in a prerequisite list.) 
+$? - A list of files for current dependency which are out-of-date (Cannot be used in a suffix rule.)
+$< - The source file of the current (single) dependency
+$* - In a suffix rule, this expands to the root name of the file. 
+$% - Expands to a .o file if the target is a library. 
+--------------
+clean node (usually to remove unnecessary files):
+==============
+clean:
+	\rm -f *.o  # will remove all the files with the suffix .o
+Note that in order to run this node, you should prompt >make clean
+-------------
+all node:
+==============
+You use it to do more than one task (node).
+all: exe1 exe2 # if you want to create two executables named exe1 and exe2
+all: exe1 clean # if you want to create exe1 and run clean node
+Note that by default make command would execute all node.
+If you don't want to execute all node, but any other node in your Makefile,
+prompt >make nodename command.
+--------------
+comments:
+==============
+Comments are added using # character (as above):
+# this is a comment
+--------------
+
+Here is an example for Makefile:
+--------------------------------
+In your directory you have the following files: file1.c, file2.c, file3.c, header1.h, header2.h.
+Your goal is to get two executables, exe1 and exe2_3, to remove all *.o files and to copy 
+exe1 file to ./mydir directory.
+
+---------------
+OBJS1 = file1.o
+OBJS2 = file2.o file3.o
+CC = gcc
+DEBUG = -g
+CFLAGS = -Wall -c $(DEBUG)
+LFLAGS = -Wall $(DEBUG)
+
+all: exe1 exe2_3 clean other
+
+exe1: $(OBJS1)
+	$(CC) $(LFLAGS) $(OBJS1) -o $@
+
+exe2_3: $(OBJS2)
+	$(CC) $(LFLAGS) $(OBJS2) -o $@
+
+file1.o: file1.c header1.h
+	$(CC) $(CFLAGS) file1.c
+
+file2.o: file2.c header2.h
+	$(CC) $(CFLAGS) file2.c
+
+file3.o: file3.c
+	$(CC) $(CFLAGS) file3.c
+
+clean:
+	\rm -f *.o
+
+other:
+	cp exe1 ./mydir
+---------------
+
+In order to run your makefile, save it under the name Makefile,
+and then prompt:
+>make
